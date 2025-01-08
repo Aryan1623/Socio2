@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Social Media Analytics</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1c1e22, #3a0ca3); /* Gradient background */
+            color: #d8b4fe; /* Pretty shade of purple */
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 25%;
+            background-color: rgba(0, 0, 0, 0.8); /* Transparent shady black */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h1 {
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .sidebar .section {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #61dafb; /* Blue color from the text analyzer */
+        }
+
+        .section p, .section ul li {
+            color: #d8b4fe; /* Pretty shade of purple */
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            margin-top: -10px;
+        }
+
+        .status .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            color: #61dafb; /* Blue color from the text analyzer */
+        }
+
+        .settings-icon {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chat-box {
+            flex: 1;
+            background-color: #282c34;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #5865f2;
+            color: #ffffff;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #333740;
+            color: #ffffff;
+            align-self: flex-start;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #333740;
+        }
+
+        .footer input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #333740;
+            color: #d8b4fe; /* Pretty shade of purple */
+        }
+
+        #sendButton {
+            background-color: #61dafb; /* Blue color from the text analyzer */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #121212;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #sendButton:hover {
+            background-color: #0f3460;
+            color: #61dafb; /* Blue color from the text analyzer */
+        }
+
+        #voicebutton {
+            margin-right: 10px;
+        }
+
+        #voicebutton:hover {
+            cursor: pointer;
+        }
+
+        .typing-animation {
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #5865f2;
+            border-radius: 50%;
+            animation: blink 1.4s infinite both;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 80%, 100% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
+
+        .graph-button {
+            background-color: #61dafb; /* Blue color from the text analyzer */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #121212;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .graph-button:hover {
+            background-color: #0f3460;
+            color: #61dafb; /* Blue color from the text analyzer */
+        }
+
+        #voicebutton {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            background-color: #5865f2;
+        }
+
+        #voicebutton:hover {
+            background-color: #4752c4;
+        }
+
+        /* Tooltip styling */
+        #voicebutton::after {
+            content: 'Use to give voice input';
+            position: absolute;
+            bottom: 50px; /* Position above the button */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333740;
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            white-space: nowrap;
+        }
+
+        #voicebutton:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div>
+                <h1>Hi, This is your SocioGPT<br><small>v4.0</small></h1>
+                <div class="section">
+                    <h2>About</h2>
+                    <p>I am an advanced AI model that helps you analyse social data</p>
+                </div>
+                <div class="section">
+                    <h2>Guide</h2>
+                    <ul>
+                        <li>Ask about comparing different types of posts</li>
+                        <li>Get both description and graphical representation for your query</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="status">
+                <div class="dot"></div>
+                <span>System Online</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>SocioGPT</h1>
+                <span class="settings-icon">⚙️</span>
+            </div>
+
+            <div class="chat-box" id="chatBox"></div>
+
+            <div class="footer">
+                <input type="text" id="userInput" placeholder="Ask about your analytics..." />
+                <div id="voicebutton" onclick="startVoiceRecognition()"><i class="fa-solid fa-microphone"></i></div>
+                <button id="sendButton">Send</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addGraphButton() {
+            const buttonDiv = document.createElement('div');
+            const button = document.createElement('button');
+            button.classList.add('graph-button');
+            button.textContent = 'Graphical Representation →';
+            button.onclick = () => window.location.href = 'graphs.html';
+            buttonDiv.appendChild(button);
+            chatBox.appendChild(buttonDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingAnimation() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('message', 'bot-message', 'typing-animation');
+            typingDiv.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return typingDiv;
+        }
+
+        async function sendMessage() {
+            const inputValue = userInput.value.trim();
+            if (!inputValue) return;
+
+            // Add user message to chatbox
+            addMessage(inputValue, true);
+
+            // Clear input field
+            userInput.value = '';
+
+            // Show typing animation after user input
+            const typingDiv = showTypingAnimation();
+
+            // After 3 seconds, remove the typing animation and show the bot's response
+            setTimeout(() => {
+                typingDiv.remove();
+                addMessage("Based on the retrieved data, VIDEOS outperform IMAGES posts in terms of engagement metrics. On average, VIDEOS generate Nearly 2.5 times as many Bee (120 vs 48), More than 2 times as many comments (65 vs 25), and Over 2 times as many shares (60 vs 18). This suggests that VIDEOS are a more engaging format, making them ideal for maximizing audience interaction.", false);
+
+                // Add the Graphical Representation button
+                addGraphButton();
+            }, 3000);
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function startVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voice recognition is not supported in this browser.");
+                return;
+            }
+    
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+    
+            recognition.start();
+    
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("userInput").value = transcript;
+            };
+    
+            recognition.onerror = function(event) {
+                console.error("Voice recognition error:", event);
+            };
+        }
+    </script>
+</body>
+</html>
+
+
