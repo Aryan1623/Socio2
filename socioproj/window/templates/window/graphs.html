@@ -94,26 +94,8 @@
 </head>
 <body>
     <div class="container">
-        <div class="metrics">
-            <div class="metric-card">
-                <h3>Total Likes</h3>
-                <p style = "color: #4169E1">168</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Comments</h3>
-                <p style = "color: #FF7F50">90</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Total Shares</h3>
-                <p style = "color: #FFD700">58</p>
-            </div>
-
-            <div class="metric-card">
-                <h3>Engagement</h3>
-                <p style = "color: #228B22">316</p>
-            </div>
+        <div class="metrics" id="metrics">
+            <!-- Metrics will be dynamically generated -->
         </div>
 
         <div class="charts">
@@ -137,71 +119,105 @@
     </div>
 
     <script>
-        const categories = ['Likes', 'Comments', 'Shares'];
-        const video_values = [120, 65, 40];
-        const image_values = [48, 25, 18];
+        async function fetchData() {
+            try {
+                const response = await fetch('https://your-api-endpoint.com/data');
+                const data = await response.json();
 
-        const ctxDoubleBar = document.getElementById('doubleBarChart').getContext('2d');
-        const doubleBarChart = new Chart(ctxDoubleBar, {
-            type: 'bar',
-            data: {
-                labels: categories,
-                datasets: [{
-                    label: 'Videos',
-                    data: video_values,
-                    backgroundColor: '#5865f2',
-                    borderColor: '#4752c4',
-                    borderWidth: 1
-                }, {
-                    label: 'Images',
-                    data: image_values,
-                    backgroundColor: '#33cc95',
-                    borderColor: '#28a745',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                // Metrics Data
+                const metricsContainer = document.getElementById('metrics');
+                const metrics = data.metrics;
+
+                metrics.forEach(metric => {
+                    const metricCard = document.createElement('div');
+                    metricCard.classList.add('metric-card');
+                    metricCard.innerHTML = `<h3>${metric.label}</h3><p style="color: ${metric.color}">${metric.value}</p>`;
+                    metricsContainer.appendChild(metricCard);
+                });
+
+                // Chart Data
+                const categories = data.categories;
+                const videoValues = data.video_values;
+                const imageValues = data.image_values;
+
+                // Double Bar Chart
+                const ctxDoubleBar = document.getElementById('doubleBarChart').getContext('2d');
+                new Chart(ctxDoubleBar, {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [
+                            {
+                                label: 'Videos',
+                                data: videoValues,
+                                backgroundColor: '#5865f2',
+                                borderColor: '#4752c4',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Images',
+                                data: imageValues,
+                                backgroundColor: '#33cc95',
+                                borderColor: '#28a745',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
 
-        const ctxVideoPie = document.getElementById('videoPieChart').getContext('2d');
-        const videoPieChart = new Chart(ctxVideoPie, {
-            type: 'pie',
-            data: {
-                labels: ['Likes', 'Comments', 'Shares'],
-                datasets: [{
-                    data: [120, 65, 40],
-                    backgroundColor: ['#5865f2', '#4752c4', '#333740'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
+                // Video Pie Chart
+                const ctxVideoPie = document.getElementById('videoPieChart').getContext('2d');
+                new Chart(ctxVideoPie, {
+                    type: 'pie',
+                    data: {
+                        labels: categories,
+                        datasets: [
+                            {
+                                data: videoValues,
+                                backgroundColor: ['#5865f2', '#4752c4', '#333740']
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
 
-        const ctxImagePie = document.getElementById('imagePieChart').getContext('2d');
-        const imagePieChart = new Chart(ctxImagePie, {
-            type: 'pie',
-            data: {
-                labels: ['Likes', 'Comments', 'Shares'],
-                datasets: [{
-                    data: [48, 25, 18],
-                    backgroundColor: ['#33cc95', '#28a745', '#2ecc71'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
+                // Image Pie Chart
+                const ctxImagePie = document.getElementById('imagePieChart').getContext('2d');
+                new Chart(ctxImagePie, {
+                    type: 'pie',
+                    data: {
+                        labels: categories,
+                        datasets: [
+                            {
+                                data: imageValues,
+                                backgroundColor: ['#33cc95', '#28a745', '#2ecc71']
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
-        });
+        }
+
+        // Fetch data on page load
+        fetchData();
     </script>
 </body>
 </html>
