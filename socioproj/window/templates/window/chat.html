@@ -290,89 +290,122 @@
 
 
     <script>
-        const chatBox = document.getElementById('chatBox');
-        const userInput = document.getElementById('userInput');
-        const sendButton = document.getElementById('sendButton');
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
 
-        function addMessage(text, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', isUser ? 'user-message' : 'bot-message');
-            messageDiv.textContent = text;
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    function addMessage(text, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', isUser ? 'user-message' : 'bot-message');
+        messageDiv.textContent = text;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-        function addGraphButton() {
-            const buttonDiv = document.createElement('div');
-            const button = document.createElement('button');
-            button.classList.add('graph-button');
-            button.textContent = 'Graphical Representation →';
-            button.onclick = () => window.location.href = 'graphs.html';
-            buttonDiv.appendChild(button);
-            chatBox.appendChild(buttonDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    function addGraphButton() {
+        const buttonDiv = document.createElement('div');
+        const button = document.createElement('button');
+        button.classList.add('graph-button');
+        button.textContent = 'Graphical Representation →';
+        button.onclick = () => window.location.href = 'graphs.html';
+        buttonDiv.appendChild(button);
+        chatBox.appendChild(buttonDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-        function showTypingAnimation() {
-            const typingDiv = document.createElement('div');
-            typingDiv.classList.add('message', 'bot-message', 'typing-animation');
-            typingDiv.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
-            chatBox.appendChild(typingDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            return typingDiv;
-        }
+    function showTypingAnimation() {
+        const typingDiv = document.createElement('div');
+        typingDiv.classList.add('message', 'bot-message', 'typing-animation');
+        typingDiv.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span>`;
+        chatBox.appendChild(typingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return typingDiv;
+    }
 
-        async function sendMessage() {
-            const inputValue = userInput.value.trim();
-            if (!inputValue) return;
+    async function sendMessage() {
+        const inputValue = userInput.value.trim();
+        if (!inputValue) return;
 
-            // Add user message to chatbox
-            addMessage(inputValue, true);
+        // Add user message to chatbox
+        addMessage(inputValue, true);
 
-            // Clear input field
-            userInput.value = '';
+        // Clear input field
+        userInput.value = '';
 
-            // Show typing animation after user input
-            const typingDiv = showTypingAnimation();
+        // Show typing animation after user input
+        const typingDiv = showTypingAnimation();
 
-            // After 3 seconds, remove the typing animation and show the bot's response
-            setTimeout(() => {
-                typingDiv.remove();
-                addMessage("Based on the retrieved data, VIDEOS outperform IMAGES posts in terms of engagement metrics. On average, VIDEOS generate Nearly 2.5 times as many Bee (120 vs 48), More than 2 times as many comments (65 vs 25), and Over 2 times as many shares (60 vs 18). This suggests that VIDEOS are a more engaging format, making them ideal for maximizing audience interaction.", false);
+        // Parse user input to extract dynamic arrays
+        const [array1, array2] = parseInput(inputValue);
 
-                // Add the Graphical Representation button
+        // Fetch response from the Langflow API
+        try {
+            const response = await fetch('https://your-langflow-api-endpoint.com/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ array1, array2 }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            // Display the response from Langflow
+            addMessage(data.response, false);
+
+            // Add the Graphical Representation button if applicable
+            if (data.showGraphButton) {
                 addGraphButton();
-            }, 3000);
-        }
-
-        sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        function startVoiceRecognition() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert("Voice recognition is not supported in this browser.");
-                return;
             }
-    
-            const recognition = new webkitSpeechRecognition();
-            recognition.lang = "en-US";
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-    
-            recognition.start();
-    
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById("userInput").value = transcript;
-            };
-    
-            recognition.onerror = function(event) {
-                console.error("Voice recognition error:", event);
-            };
+        } catch (error) {
+            typingDiv.remove();
+            addMessage('An error occurred while processing your request. Please try again.', false);
+            console.error('Error fetching API:', error);
         }
-    </script>
+    }
+
+    function parseInput(input) {
+        // Example: Extract dynamic arrays from user input (assuming JSON format)
+        // Input format: {"array1": [1, 2, 3], "array2": [4, 5, 6]}
+        try {
+            const parsed = JSON.parse(input);
+            return [parsed.array1, parsed.array2];
+        } catch (error) {
+            addMessage('Invalid input format. Please provide arrays in JSON format.', false);
+            throw new Error('Invalid input format');
+        }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function startVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Voice recognition is not supported in this browser.");
+            return;
+        }
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById("userInput").value = transcript;
+        };
+
+        recognition.onerror = function(event) {
+            console.error("Voice recognition error:", event);
+        };
+    }
+</script>
+
 </body>
 </html>
 
